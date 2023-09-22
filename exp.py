@@ -1,3 +1,4 @@
+
 from utils import preprocess_data,split_data,train_model,read_digits,predict_evaluate
 # 1. Load the data
 X, y = read_digits()
