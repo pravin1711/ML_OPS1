@@ -18,6 +18,29 @@ import matplotlib.pyplot as plt
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
 
+
+
+# We will put all  utils here
+def preprocess_data(data):
+    # flatten the images    
+    n_samples = len(data)
+    data = data.reshape((n_samples, -1))
+    return data
+
+
+# Split data into 50% train and 50% test subsets
+def split_data(x,y,test_size,random_state=1):
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.5,  random_state=random_state)
+
+    return X_train, X_test, y_train, y_test
+
+# train the model
+def train_model(x, y, model_params, model_type="svm"):
+    if model_type == "svm":
+         clf= svm.SVC;
+    model = clf(**model_params)
+    model.fit(x,y)
+    return model
 ###############################################################################
 # Digits dataset
 # --------------
@@ -58,30 +81,29 @@ for ax, image, label in zip(axes, digits.images, digits.target):
 # subsequently be used to predict the value of the digit for the samples
 # in the test subset.
 
+# 3. Data spliting to create train and test samples
+data= digits.images
+X_train, X_test, y_train, y_test=split_data(data, digits.target,test_size=0.3)
 
-# 3. Data Preprocessing
-# flatten the images
-n_samples = len(digits.images)
-data = digits.images.reshape((n_samples, -1))
+# 4. Data Preprocessing
+
+X_train= preprocess_data(X_train)
+X_test= preprocess_data(X_test)
 
 
-# 4. Data spliting to create train and test samples
-# Split data into 50% train and 50% test subsets
-X_train, X_test, y_train, y_test = train_test_split(
-    data, digits.target, test_size=0.5, shuffle=False
-)
+
 
 
 # 5. Model Training
+
+model=train_model(X_train, y_train, {'gamma': 0.001}, model_type="svm")
 # Create a classifier: a support vector classifier
-clf = svm.SVC(gamma=0.001)
-# Learn the digits on the train subset
-clf.fit(X_train, y_train)
+
 
 
 # 6. Getting Model prediction on test set
 # Predict the value of the digit on the test subset
-predicted = clf.predict(X_test)
+predicted = model.predict(X_test)
 
 ###############################################################################
 # Below we visualize the first 4 test samples and show their predicted
@@ -105,7 +127,7 @@ for ax, image, prediction in zip(axes, X_test, predicted):
 # 8. Evaluation
 
 print(
-    f"Classification report for classifier {clf}:\n"
+    f"Classification report for classifier {model}:\n"
     f"{metrics.classification_report(y_test, predicted)}\n"
 )
 
